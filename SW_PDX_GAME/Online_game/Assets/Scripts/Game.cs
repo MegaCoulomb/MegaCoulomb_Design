@@ -55,25 +55,32 @@ namespace GoFish
         protected void Awake()
         {
             Debug.Log("base awake");
+
             localPlayer = new Player();
+            Debug.Log("Enter new localPlayer");
             localPlayer.PlayerId = "offline-player";
             localPlayer.PlayerName = "Player";
             localPlayer.Position = PlayerPositions[0].position;
             localPlayer.BookPosition = BookPositions[0].position;
+            Debug.Log("Exit new localPlayer");
 
             remotePlayer = new Player();
+            Debug.Log("Enter new remotePlayer");
             remotePlayer.PlayerId = "offline-bot";
             remotePlayer.PlayerName = "Bot";
             remotePlayer.Position = PlayerPositions[1].position;
             remotePlayer.BookPosition = BookPositions[1].position;
             remotePlayer.IsAI = true;
+            Debug.Log("Exit new remotePlayer");
 
             remotePlayer1 = new Player();
+            Debug.Log("Enter new remote1Player");
             remotePlayer1.PlayerId = "offline-bot";
             remotePlayer1.PlayerName = "Bot";
             remotePlayer1.Position = PlayerPositions[2].position;
-            remotePlayer1.BookPosition = BookPositions[2].position;
+            //remotePlayer1.BookPosition = BookPositions[2].position;
             remotePlayer1.IsAI = true;
+            Debug.Log("Exit new remote1Player");
 
             cardAnimator = FindObjectOfType<CardAnimator>();
         }
