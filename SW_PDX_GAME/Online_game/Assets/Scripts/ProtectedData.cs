@@ -21,9 +21,13 @@ namespace GoFish
         [SerializeField]
         List<byte> player2Cards = new List<byte>();
         [SerializeField]
+        List<byte> player3Cards = new List<byte>();
+        [SerializeField]
         List<byte> booksForPlayer1 = new List<byte>();
         [SerializeField]
         List<byte> booksForPlayer2 = new List<byte>();
+        [SerializeField]
+        List<byte> booksForPlayer3 = new List<byte>();
         [SerializeField]
         string player1Id;
         [SerializeField]
@@ -75,9 +79,13 @@ namespace GoFish
             {
                 result = player1Cards;
             }
-            else
+            else if (player.PlayerId.Equals(player2Id))
             {
                 result = player2Cards;
+            }
+            else
+            {
+                result = player3Cards;
             }
             Encrypt();
             return result;
@@ -91,9 +99,13 @@ namespace GoFish
             {
                 result = booksForPlayer1;
             }
-            else
+            else if (player.PlayerId.Equals(player2Id))
             {
                 result = booksForPlayer2;
+            }
+            else
+            {
+                result = booksForPlayer3;
             }
             Encrypt();
             return result;
@@ -107,10 +119,15 @@ namespace GoFish
                 player1Cards.AddRange(cardValues);
                 player1Cards.Sort();
             }
-            else
+            else if (player.PlayerId.Equals(player2Id))
             {
                 player2Cards.AddRange(cardValues);
                 player2Cards.Sort();
+            }
+            else
+            {
+                player3Cards.AddRange(cardValues);
+                player3Cards.Sort();
             }
             Encrypt();
         }
@@ -123,10 +140,15 @@ namespace GoFish
                 player1Cards.Add(cardValue);
                 player1Cards.Sort();
             }
-            else
+            else if (player.PlayerId.Equals(player2Id))
             {
                 player2Cards.Add(cardValue);
                 player2Cards.Sort();
+            }
+            else
+            {
+                player3Cards.Add(cardValue);
+                player3Cards.Sort();
             }
             Encrypt();
         }
@@ -138,9 +160,13 @@ namespace GoFish
             {
                 player1Cards.RemoveAll(cv => cardValuesToRemove.Contains(cv));
             }
-            else
+            else if (player.PlayerId.Equals(player2Id))
             {
                 player2Cards.RemoveAll(cv => cardValuesToRemove.Contains(cv));
+            }
+            else
+            {
+                player3Cards.RemoveAll(cv => cardValuesToRemove.Contains(cv));
             }
             Encrypt();
         }
@@ -152,9 +178,13 @@ namespace GoFish
             {
                 booksForPlayer1.Add((byte)ranks);
             }
-            else
+            else if (player.PlayerId.Equals(player2Id))
             {
                 booksForPlayer2.Add((byte)ranks);
+            }
+            else
+            {
+                booksForPlayer3.Add((byte)ranks);
             }
             Encrypt();
         }
@@ -174,6 +204,11 @@ namespace GoFish
             }
 
             if (player2Cards.Count == 0)
+            {
+                result = true;
+            }
+
+            if (player3Cards.Count == 0)
             {
                 result = true;
             }
@@ -273,14 +308,21 @@ namespace GoFish
             message.Push((Byte)player2Cards.Count);
             message.PushByteArray(player2Cards.ToArray());
 
+            message.Push((Byte)player3Cards.Count);
+            message.PushByteArray(player3Cards.ToArray());
+
             message.Push((Byte)booksForPlayer1.Count);
             message.PushByteArray(booksForPlayer1.ToArray());
 
             message.Push((Byte)booksForPlayer2.Count);
             message.PushByteArray(booksForPlayer2.ToArray());
 
+            message.Push((Byte)booksForPlayer3.Count);
+            message.PushByteArray(booksForPlayer3.ToArray());
+
             message.PushUTF8ShortString(player1Id);
             message.PushUTF8ShortString(player2Id);
+            message.PushUTF8ShortString(player3Id);
 
             message.PushUTF8ShortString(currentTurnPlayerId);
             message.Push(currentGameState);
@@ -292,10 +334,13 @@ namespace GoFish
             poolOfCards = new List<byte>();
             player1Cards = new List<byte>();
             player2Cards = new List<byte>();
+            player3Cards = new List<byte>();
             booksForPlayer1 = new List<byte>();
             booksForPlayer2 = new List<byte>();
+            booksForPlayer3 = new List<byte>();
             player1Id = null;
             player2Id = null;
+            player3Id = null;
             currentTurnPlayerId = null;
             currentGameState = 0;
             selectedRank = 0;
@@ -315,14 +360,21 @@ namespace GoFish
             byte player2CardsCount = message.PopByte();
             player2Cards = message.PopByteArray(player2CardsCount).ToList();
 
+            byte player3CardsCount = message.PopByte();
+            player3Cards = message.PopByteArray(player3CardsCount).ToList();
+
             byte booksForPlayer1Count = message.PopByte();
             booksForPlayer1 = message.PopByteArray(booksForPlayer1Count).ToList();
 
             byte booksForPlayer2Count = message.PopByte();
             booksForPlayer2 = message.PopByteArray(booksForPlayer2Count).ToList();
 
+            byte booksForPlayer3Count = message.PopByte();
+            booksForPlayer1 = message.PopByteArray(booksForPlayer3Count).ToList();
+
             player1Id = message.PopUTF8ShortString();
             player2Id = message.PopUTF8ShortString();
+            player3Id = message.PopUTF8ShortString();
 
             currentTurnPlayerId = message.PopUTF8ShortString();
             currentGameState = message.PopInt32();

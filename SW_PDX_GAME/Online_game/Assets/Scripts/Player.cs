@@ -13,6 +13,7 @@ namespace GoFish
         public string PlayerId;
         public string PlayerName;
         public bool IsAI;
+        public bool IsDealer;
         public Vector2 Position;
         public Vector2 BookPosition;
 

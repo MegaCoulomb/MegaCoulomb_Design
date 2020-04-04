@@ -37,7 +37,7 @@ namespace GoFish
             {
                 cardValues.Add(value);
             }
-
+            
             List<byte> poolOfCards = new List<byte>();
 
             for (int index = 0; index < 52; index++)
@@ -50,6 +50,9 @@ namespace GoFish
             }
 
             protectedData.SetPoolOfCards(poolOfCards);
+
+            //Debug.Log("CardValues = " + cardValues);
+            //Debug.Log("poolOfCards - " + poolOfCards);
         }
 
         public void DealCardValuesToPlayer(Player player, int numberOfCards)
@@ -82,6 +85,8 @@ namespace GoFish
 
             return Constants.POOL_IS_EMPTY;
         }
+
+        // need to replicate previous functions for dealing pool cards
 
         public List<byte> PlayerCards(Player player)
         {

@@ -57,30 +57,33 @@ namespace GoFish
             Debug.Log("base awake");
 
             localPlayer = new Player();
-            Debug.Log("Enter new localPlayer");
+            //Debug.Log("Enter new localPlayer");
             localPlayer.PlayerId = "offline-player";
             localPlayer.PlayerName = "Player";
             localPlayer.Position = PlayerPositions[0].position;
             localPlayer.BookPosition = BookPositions[0].position;
-            Debug.Log("Exit new localPlayer");
+            localPlayer.IsDealer = false;
+            //Debug.Log("Exit new localPlayer");
 
             remotePlayer = new Player();
-            Debug.Log("Enter new remotePlayer");
+            //Debug.Log("Enter new remotePlayer");
             remotePlayer.PlayerId = "offline-bot";
             remotePlayer.PlayerName = "Bot";
             remotePlayer.Position = PlayerPositions[1].position;
             remotePlayer.BookPosition = BookPositions[1].position;
             remotePlayer.IsAI = true;
-            Debug.Log("Exit new remotePlayer");
+            remotePlayer.IsDealer = true;
+            //Debug.Log("Exit new remotePlayer");
 
             remotePlayer1 = new Player();
-            Debug.Log("Enter new remote1Player");
-            remotePlayer1.PlayerId = "offline-bot";
+            //Debug.Log("Enter new remote1Player");
+            remotePlayer1.PlayerId = "offline-bot_1";
             remotePlayer1.PlayerName = "Bot";
             remotePlayer1.Position = PlayerPositions[2].position;
-            //remotePlayer1.BookPosition = BookPositions[2].position;
+            remotePlayer1.BookPosition = BookPositions[2].position;
             remotePlayer1.IsAI = true;
-            Debug.Log("Exit new remote1Player");
+            remotePlayer1.IsDealer = true;
+            //Debug.Log("Exit new remote1Player");
 
             cardAnimator = FindObjectOfType<CardAnimator>();
         }
@@ -191,7 +194,7 @@ namespace GoFish
 
             if (currentTurnPlayer == localPlayer)
             {
-                SetMessage($"Your turn. Pick a card from your hand.");
+                SetMessage($"It is your turn!");
             }
             else
             {
@@ -302,7 +305,7 @@ namespace GoFish
             MessageText.text = message;
         }
 
-        public void SwitchTurn()
+        public void SwitchTurn() // Becomes complicated with multiple players..how was done in online game?
         {
             if (currentTurnPlayer == null)
             {
@@ -314,6 +317,11 @@ namespace GoFish
             if (currentTurnPlayer == localPlayer)
             {
                 currentTurnPlayer = remotePlayer;
+                currentTurnTargetPlayer = localPlayer;
+            }
+            else if (currentTurnPlayer == remotePlayer)
+            {
+                currentTurnPlayer = remotePlayer1;
                 currentTurnTargetPlayer = localPlayer;
             }
             else
@@ -348,12 +356,17 @@ namespace GoFish
             playerCardValues = gameDataManager.PlayerCards(remotePlayer);
             remotePlayer.SetCardValues(playerCardValues);
             PlayerShowBooksIfNecessary(remotePlayer);
+
+            playerCardValues = gameDataManager.PlayerCards(remotePlayer1);
+            remotePlayer1.SetCardValues(playerCardValues);
+            PlayerShowBooksIfNecessary(remotePlayer1);
         }
 
         public void ShowAndHidePlayersDisplayingCards()
         {
             localPlayer.ShowCardValues();
             remotePlayer.HideCardValues();
+            remotePlayer1.HideCardValues();
         }
 
         //****************** User Interaction *********************//
