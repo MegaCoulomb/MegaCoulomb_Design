@@ -13,10 +13,14 @@ namespace GoFish
         public string PlayerId;
         public string PlayerName;
         public bool IsAI;
-        public bool IsDealer;
         public Vector2 Position;
         public Vector2 BookPosition;
-
+        public float BuyInAmt = 40;
+        public int BuyIns = 1;
+        //public int TournamentAddOn = 0;
+        //public float CashAddOn = 0;
+        public float StackAmt;
+        public double bet;
         int numberOfDisplayingCards;
         int numberOfBooks;
 

@@ -39,7 +39,7 @@ namespace GoFish
 
         private void OnDestroy()
         {
-            if (NetworkClient.Lobby != null)-
+            if (NetworkClient.Lobby != null)
             {
                 NetworkClient.Lobby.OnLobbyConnectedEvent -= OnLobbyConnected;
                 NetworkClient.Lobby.OnNewPlayerJoinRoomEvent -= OnNewPlayerJoinRoomEvent;
@@ -237,7 +237,7 @@ namespace GoFish
             Debug.Log("OnPracticeClicked");
             SceneManager.LoadScene("GameScene");
         }
-        
+
         /// <summary>
         /// Online button was clicked.
         /// </summary>

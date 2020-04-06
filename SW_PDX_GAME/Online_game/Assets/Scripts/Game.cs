@@ -10,6 +10,13 @@ namespace GoFish
     public class Game : MonoBehaviour
     {
         public Text MessageText;
+        public Text Stack;
+        public Text betAmt;
+        public Button bet;
+        public float currentBet;
+        public Slider betSlider;
+        public float GamePot;
+
 
         protected CardAnimator cardAnimator;
 
@@ -23,8 +30,6 @@ namespace GoFish
         protected Player localPlayer;
         [SerializeField]
         protected Player remotePlayer;
-        [SerializeField]
-        protected Player remotePlayer1;
 
         [SerializeField]
         protected Player currentTurnPlayer;
@@ -41,11 +46,11 @@ namespace GoFish
             Idle,
             GameStarted,
             TurnStarted,
-            TurnSelectingNumber,
-            TurnConfirmedSelectedNumber,
-            TurnWaitingForOpponentConfirmation,
-            TurnOpponentConfirmed,
-            TurnGoFish,
+            PreFlopAction,
+            Bet,
+            ConfirmBet,
+            WaitingForOpponent,
+            Deal,
             GameFinished
         };
 
@@ -55,35 +60,18 @@ namespace GoFish
         protected void Awake()
         {
             Debug.Log("base awake");
-
             localPlayer = new Player();
-            //Debug.Log("Enter new localPlayer");
             localPlayer.PlayerId = "offline-player";
             localPlayer.PlayerName = "Player";
             localPlayer.Position = PlayerPositions[0].position;
             localPlayer.BookPosition = BookPositions[0].position;
-            localPlayer.IsDealer = false;
-            //Debug.Log("Exit new localPlayer");
 
             remotePlayer = new Player();
-            //Debug.Log("Enter new remotePlayer");
             remotePlayer.PlayerId = "offline-bot";
             remotePlayer.PlayerName = "Bot";
             remotePlayer.Position = PlayerPositions[1].position;
             remotePlayer.BookPosition = BookPositions[1].position;
             remotePlayer.IsAI = true;
-            remotePlayer.IsDealer = true;
-            //Debug.Log("Exit new remotePlayer");
-
-            remotePlayer1 = new Player();
-            //Debug.Log("Enter new remote1Player");
-            remotePlayer1.PlayerId = "offline-bot_1";
-            remotePlayer1.PlayerName = "Bot";
-            remotePlayer1.Position = PlayerPositions[2].position;
-            remotePlayer1.BookPosition = BookPositions[2].position;
-            remotePlayer1.IsAI = true;
-            remotePlayer1.IsDealer = true;
-            //Debug.Log("Exit new remote1Player");
 
             cardAnimator = FindObjectOfType<CardAnimator>();
         }
@@ -95,6 +83,8 @@ namespace GoFish
         }
 
         //****************** Game Flow *********************//
+        // 4/5/20 - nned to resolve messages to text windows...
+
         public virtual void GameFlow()
         {
             if (gameState > GameState.GameStarted)
@@ -118,6 +108,9 @@ namespace GoFish
                 case GameState.GameStarted:
                     {
                         Debug.Log("GameStarted");
+                        currentBet = 0;
+                        localPlayer.StackAmt = localPlayer.BuyInAmt;
+                        Stack.text = "$" + localPlayer.StackAmt.ToString();
                         OnGameStarted();
                         break;
                     }
@@ -127,36 +120,40 @@ namespace GoFish
                         OnTurnStarted();
                         break;
                     }
-                case GameState.TurnSelectingNumber:
+                case GameState.PreFlopAction:
                     {
-                        Debug.Log("TurnSelectingNumber");
-                        OnTurnSelectingNumber();
+                        Debug.Log("Pre-Flop Betting");
+                        SetMessage("Pre-flop Betting", localPlayer.StackAmt.ToString());
+                        gameState = GameState.Bet;
+                        GameFlow();
                         break;
                     }
-                case GameState.TurnConfirmedSelectedNumber:
+                case GameState.Bet:
                     {
-                        Debug.Log("TurnComfirmedSelectedNumber");
-                        OnTurnConfirmedSelectedNumber();
+                        Debug.Log("Bet");
+                        PlaceBet();
                         break;
                     }
-                case GameState.TurnWaitingForOpponentConfirmation:
+                    //case GameState.TurnWaitingForOpponentConfirmation:
                     {
                         Debug.Log("TurnWaitingForOpponentConfirmation");
                         OnTurnWaitingForOpponentConfirmation();
                         break;
                     }
-                case GameState.TurnOpponentConfirmed:
+                    //case GameState.TurnOpponentConfirmed:
                     {
                         Debug.Log("TurnOpponentConfirmed");
                         OnTurnOpponentConfirmed();
                         break;
                     }
-                case GameState.TurnGoFish:
+                case GameState.Deal:
                     {
                         Debug.Log("TurnGoFish");
                         OnTurnGoFish();
                         break;
                     }
+                case GameState.ConfirmBet:
+
                 case GameState.GameFinished:
                     {
                         Debug.Log("GameFinished");
@@ -168,15 +165,14 @@ namespace GoFish
 
         protected virtual void OnGameStarted()
         {
-            gameDataManager = new GameDataManager(localPlayer, remotePlayer, remotePlayer1);
+            gameDataManager = new GameDataManager(localPlayer, remotePlayer);
+            //Stack.text = localPlayer.StackAmt.ToString();
             gameDataManager.Shuffle();
             gameDataManager.DealCardValuesToPlayer(localPlayer, Constants.PLAYER_INITIAL_CARDS);
             gameDataManager.DealCardValuesToPlayer(remotePlayer, Constants.PLAYER_INITIAL_CARDS);
-            gameDataManager.DealCardValuesToPlayer(remotePlayer1, Constants.PLAYER_INITIAL_CARDS);
 
             cardAnimator.DealDisplayingCards(localPlayer, Constants.PLAYER_INITIAL_CARDS);
             cardAnimator.DealDisplayingCards(remotePlayer, Constants.PLAYER_INITIAL_CARDS);
-            cardAnimator.DealDisplayingCards(remotePlayer1, Constants.PLAYER_INITIAL_CARDS);
 
             gameState = GameState.TurnStarted;
         }
@@ -184,27 +180,26 @@ namespace GoFish
         protected virtual void OnTurnStarted()
         {
             SwitchTurn();
-            gameState = GameState.TurnSelectingNumber;
+            gameState = GameState.PreFlopAction;
             GameFlow();
         }
 
-        public void OnTurnSelectingNumber()
+        public void PlaceBet()
         {
-            ResetSelectedCard();
+            //ResetSelectedCard(); // not needed for hold'em
 
             if (currentTurnPlayer == localPlayer)
             {
-                SetMessage($"It is your turn!");
+                betSlider.onValueChanged.AddListener(delegate {OnSliderSelected(); });
             }
             else
             {
-                SetMessage($"{currentTurnPlayer.PlayerName}'s turn");
+                SetMessage($"{currentTurnPlayer.PlayerName}'s turn", localPlayer.StackAmt.ToString());
             }
 
             if (currentTurnPlayer.IsAI)
             {
-                selectedRank = gameDataManager.SelectRandomRanksFromPlayersCardValues(currentTurnPlayer);
-                gameState = GameState.TurnConfirmedSelectedNumber;
+                //blah
                 GameFlow();
             }
         }
@@ -213,14 +208,15 @@ namespace GoFish
         {
             if (currentTurnPlayer == localPlayer)
             {
-                SetMessage($"Asking {currentTurnTargetPlayer.PlayerName} for {selectedRank}s...");
+                //SetMessage($"Asking {currentTurnTargetPlayer.PlayerName} for {selectedRank}s...");
             }
             else
             {
-                SetMessage($"{currentTurnPlayer.PlayerName} is asking for {selectedRank}s...");
+                //SetMessage($"{currentTurnPlayer.PlayerName} is asking for {selectedRank}s...");
             }
 
-            gameState = GameState.TurnWaitingForOpponentConfirmation;
+            gameState = GameState.WaitingForOpponent;
+            //TurnWaitingForOpponentConfirmation;
             GameFlow();
         }
 
@@ -228,7 +224,7 @@ namespace GoFish
         {
             if (currentTurnTargetPlayer.IsAI)
             {
-                gameState = GameState.TurnOpponentConfirmed;
+                gameState = GameState.WaitingForOpponent;
                 GameFlow();
             }
         }
@@ -243,18 +239,18 @@ namespace GoFish
 
                 bool senderIsLocalPlayer = currentTurnTargetPlayer == localPlayer;
                 currentTurnTargetPlayer.SendDisplayingCardToPlayer(currentTurnPlayer, cardAnimator, cardValuesFromTargetPlayer, senderIsLocalPlayer);
-                gameState = GameState.TurnSelectingNumber;
+                gameState = GameState.PreFlopAction;
             }
             else
             {
-                gameState = GameState.TurnGoFish;
+                gameState = GameState.Deal;
                 GameFlow();
             }
         }
 
         protected virtual void OnTurnGoFish()
         {
-            SetMessage($"Go fish!");
+            //SetMessage($"Go fish!");
 
             byte cardValue = gameDataManager.DrawCardValue();
 
@@ -281,11 +277,11 @@ namespace GoFish
         {
             if (gameDataManager.Winner() == localPlayer)
             {
-                SetMessage($"You WON!");
+                //SetMessage($"You WON!");
             }
             else
             {
-                SetMessage($"You LOST!");
+                //SetMessage($"You LOST!");
             }
         }
 
@@ -300,12 +296,13 @@ namespace GoFish
             }
         }
 
-        protected void SetMessage(string message)
+        protected void SetMessage(string message, string stack_update)
         {
             MessageText.text = message;
+            Stack.text = stack_update;
         }
 
-        public void SwitchTurn() // Becomes complicated with multiple players..how was done in online game?
+        public void SwitchTurn()
         {
             if (currentTurnPlayer == null)
             {
@@ -317,11 +314,6 @@ namespace GoFish
             if (currentTurnPlayer == localPlayer)
             {
                 currentTurnPlayer = remotePlayer;
-                currentTurnTargetPlayer = localPlayer;
-            }
-            else if (currentTurnPlayer == remotePlayer)
-            {
-                currentTurnPlayer = remotePlayer1;
                 currentTurnTargetPlayer = localPlayer;
             }
             else
@@ -356,23 +348,18 @@ namespace GoFish
             playerCardValues = gameDataManager.PlayerCards(remotePlayer);
             remotePlayer.SetCardValues(playerCardValues);
             PlayerShowBooksIfNecessary(remotePlayer);
-
-            playerCardValues = gameDataManager.PlayerCards(remotePlayer1);
-            remotePlayer1.SetCardValues(playerCardValues);
-            PlayerShowBooksIfNecessary(remotePlayer1);
         }
 
         public void ShowAndHidePlayersDisplayingCards()
         {
             localPlayer.ShowCardValues();
             remotePlayer.HideCardValues();
-            remotePlayer1.HideCardValues();
         }
 
         //****************** User Interaction *********************//
         public void OnCardSelected(Card card)
         {
-            if (gameState == GameState.TurnSelectingNumber)
+            if (gameState == GameState.Bet)
             {
                 if (card.OwnerId == currentTurnPlayer.PlayerId)
                 {
@@ -385,27 +372,46 @@ namespace GoFish
                     selectedCard = card;
                     selectedRank = selectedCard.Rank;
                     selectedCard.OnSelected(true);
-                    SetMessage($"Ask {currentTurnTargetPlayer.PlayerName} for {selectedCard.Rank}s ?");
+                    //SetMessage($"Ask {currentTurnTargetPlayer.PlayerName} for {selectedCard.Rank}s ?");
                 }
             }
         }
 
-        public virtual void OnOkSelected()
+        public virtual void OnBetSelected(float sliderVal)
         {
-            if (gameState == GameState.TurnSelectingNumber && localPlayer == currentTurnPlayer)
+            if (gameState == GameState.Bet && localPlayer == currentTurnPlayer)
             {
-                if (selectedCard != null)
+                if (betSlider != null)
                 {
-                    gameState = GameState.TurnConfirmedSelectedNumber;
+                    currentBet = sliderVal;
+                    gameState = GameState.ConfirmBet;
                     GameFlow();
                 }
             }
-            else if (gameState == GameState.TurnWaitingForOpponentConfirmation && localPlayer == currentTurnTargetPlayer)
+            else if (gameState == GameState.WaitingForOpponent && localPlayer == currentTurnTargetPlayer)
             {
-                gameState = GameState.TurnOpponentConfirmed;
+                gameState = GameState.WaitingForOpponent;
                 GameFlow();
             }
         }
+
+        public virtual void OnSliderSelected()
+        {
+            Debug.Log("in BetSelected");
+            Debug.Log("GameState =" + gameState);
+
+            if (gameState == GameState.Bet && localPlayer == currentTurnPlayer)
+            {
+                betSlider.minValue = currentBet;
+                betSlider.maxValue = localPlayer.StackAmt;
+                Debug.Log(betSlider.minValue);
+                Debug.Log(betSlider.maxValue);
+                float betVal = betSlider.value;
+                betAmt.text ="$" + betVal.ToString();
+                bet.onClick.AddListener(delegate { OnBetSelected(betVal); });
+            }
+        }
+
 
         //****************** Animator Event *********************//
         public virtual void AllAnimationsFinished()

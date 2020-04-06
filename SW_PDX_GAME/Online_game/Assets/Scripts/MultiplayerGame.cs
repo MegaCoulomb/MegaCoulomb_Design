@@ -38,7 +38,7 @@ namespace GoFish
                         }
                     }
 
-                    gameDataManager = new GameDataManager(localPlayer, remotePlayer, remotePlayer1, NetworkClient.Lobby.RoomId);
+                    gameDataManager = new GameDataManager(localPlayer, remotePlayer, NetworkClient.Lobby.RoomId);
                     netCode.EnableRoomPropertyAgent();
                 }
                 else
@@ -83,7 +83,7 @@ namespace GoFish
             if (NetworkClient.Instance.IsHost)
             {
                 SwitchTurn();
-                gameState = GameState.TurnSelectingNumber;
+                gameState = GameState.PreFlopAction;
 
                 gameDataManager.SetCurrentTurnPlayer(currentTurnPlayer);
                 gameDataManager.SetGameState(gameState);
@@ -97,16 +97,16 @@ namespace GoFish
         {
             if (currentTurnPlayer == localPlayer)
             {
-                SetMessage($"Asking {currentTurnTargetPlayer.PlayerName} for {selectedRank}s...");
+                //SetMessage($"Asking {currentTurnTargetPlayer.PlayerName} for {selectedRank}s...");
             }
             else
             {
-                SetMessage($"{currentTurnPlayer.PlayerName} is asking for {selectedRank}s...");
+                //SetMessage($"{currentTurnPlayer.PlayerName} is asking for {selectedRank}s...");
             }
 
             if (NetworkClient.Instance.IsHost)
             {
-                gameState = GameState.TurnWaitingForOpponentConfirmation;
+                gameState = GameState.WaitingForOpponent;
                 gameDataManager.SetGameState(gameState);
 
                 netCode.ModifyGameData(gameDataManager.EncryptedData());
@@ -127,7 +127,7 @@ namespace GoFish
 
                 if (NetworkClient.Instance.IsHost)
                 {
-                    gameState = GameState.TurnSelectingNumber;
+                    gameState = GameState.PreFlopAction;
 
                     gameDataManager.SetGameState(gameState);
                     netCode.ModifyGameData(gameDataManager.EncryptedData());
@@ -138,7 +138,7 @@ namespace GoFish
             {
                 if (NetworkClient.Instance.IsHost)
                 {
-                    gameState = GameState.TurnGoFish;
+                    gameState = GameState.Deal;
 
                     gameDataManager.SetGameState(gameState);
                     netCode.ModifyGameData(gameDataManager.EncryptedData());
@@ -149,7 +149,7 @@ namespace GoFish
 
         protected override void OnTurnGoFish()
         {
-            SetMessage($"Go fish!");
+            //SetMessage($"Go fish!");
 
             byte cardValue = gameDataManager.DrawCardValue();
 
@@ -191,16 +191,18 @@ namespace GoFish
         }
 
         //****************** User Interaction *********************//
-        public override void OnOkSelected()
+        public override void OnBetSelected(float sliderVal)
         {
-            if (gameState == GameState.TurnSelectingNumber && localPlayer == currentTurnPlayer)
+            if (gameState == GameState.Bet && localPlayer == currentTurnPlayer)
             {
-                if (selectedCard != null)
+                if (betSlider != null)
                 {
+                    currentBet = sliderVal;
+                    gameState = GameState.ConfirmBet;
                     netCode.NotifyHostPlayerRankSelected((int)selectedCard.Rank);
                 }
             }
-            else if (gameState == GameState.TurnWaitingForOpponentConfirmation && localPlayer == currentTurnTargetPlayer)
+            else if (gameState == GameState.WaitingForOpponent && localPlayer == currentTurnTargetPlayer)
             {
                 netCode.NotifyHostPlayerOpponentConfirmed();
             }
@@ -277,7 +279,7 @@ namespace GoFish
         public void OnRankSelected(Ranks rank)
         {
             selectedRank = rank;
-            gameState = GameState.TurnConfirmedSelectedNumber;
+            gameState = GameState.ConfirmBet;
 
             gameDataManager.SetSelectedRank(selectedRank);
             gameDataManager.SetGameState(gameState);
@@ -288,7 +290,7 @@ namespace GoFish
 
         public void OnOppoentConfirmed()
         {
-            gameState = GameState.TurnOpponentConfirmed;
+            gameState = GameState.WaitingForOpponent;
 
             gameDataManager.SetGameState(gameState);
 
