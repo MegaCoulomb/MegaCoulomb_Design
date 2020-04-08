@@ -80,7 +80,7 @@ namespace GoFish
                 GameObject newGameObject = Instantiate(CardPrefab, newPosition, Quaternion.identity);
                 newGameObject.transform.parent = transform;
                 Card card = newGameObject.GetComponent<Card>();
-                card.SetDisplayingOrder(-1);
+                card.SetDisplayingOrder(0);
                 card.transform.position = newPosition;
                 DisplayingCards.Add(card);
             }

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System;
 using UnityEngine;
 using Unity;
 using UnityEngine.UI;
@@ -13,7 +14,7 @@ namespace GoFish
         public Text Stack;
         public Text betAmt;
         public Button bet;
-        public float currentBet;
+        public double currentBet;
         public Slider betSlider;
         public float GamePot;
 
@@ -134,18 +135,18 @@ namespace GoFish
                         PlaceBet();
                         break;
                     }
-                    //case GameState.TurnWaitingForOpponentConfirmation:
-                    {
-                        Debug.Log("TurnWaitingForOpponentConfirmation");
-                        OnTurnWaitingForOpponentConfirmation();
-                        break;
-                    }
-                    //case GameState.TurnOpponentConfirmed:
-                    {
-                        Debug.Log("TurnOpponentConfirmed");
-                        OnTurnOpponentConfirmed();
-                        break;
-                    }
+                //case GameState.TurnWaitingForOpponentConfirmation:
+                //    {
+                //        Debug.Log("TurnWaitingForOpponentConfirmation");
+                //        OnTurnWaitingForOpponentConfirmation();
+                //        break;
+                //    }
+                //case GameState.TurnOpponentConfirmed:
+                //    {
+                //        Debug.Log("TurnOpponentConfirmed");
+                //        OnTurnOpponentConfirmed();
+                //        break;
+                //    }
                 case GameState.Deal:
                     {
                         Debug.Log("TurnGoFish");
@@ -377,7 +378,7 @@ namespace GoFish
             }
         }
 
-        public virtual void OnBetSelected(float sliderVal)
+        public virtual void OnBetSelected(double sliderVal)
         {
             if (gameState == GameState.Bet && localPlayer == currentTurnPlayer)
             {
@@ -402,11 +403,11 @@ namespace GoFish
 
             if (gameState == GameState.Bet && localPlayer == currentTurnPlayer)
             {
-                betSlider.minValue = currentBet;
-                betSlider.maxValue = localPlayer.StackAmt;
+                betSlider.minValue = (float)Math.Round(currentBet, 2);
+                betSlider.maxValue = (float)Math.Round(localPlayer.StackAmt,2);
                 Debug.Log(betSlider.minValue);
                 Debug.Log(betSlider.maxValue);
-                float betVal = betSlider.value;
+                double betVal = Math.Round(betSlider.value,2);
                 betAmt.text ="$" + betVal.ToString();
                 bet.onClick.AddListener(delegate { OnBetSelected(betVal); });
             }

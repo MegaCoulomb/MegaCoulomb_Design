@@ -191,7 +191,7 @@ namespace GoFish
         }
 
         //****************** User Interaction *********************//
-        public override void OnBetSelected(float sliderVal)
+        public override void OnBetSelected(double sliderVal)
         {
             if (gameState == GameState.Bet && localPlayer == currentTurnPlayer)
             {
