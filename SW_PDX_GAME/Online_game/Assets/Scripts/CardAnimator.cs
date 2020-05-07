@@ -57,6 +57,8 @@ namespace GoFish
 
         CardAnimation currentCardAnimation;
 
+        public List<Card> BurnCardValues;
+
         Vector2 startPosition = new Vector2(-5f, 1f);
 
         // invoked when all queued card animations have been played
@@ -157,6 +159,15 @@ namespace GoFish
 
                 DisplayingCards.Remove(card);
             }
+        }
+
+        public void DrawBurnCard(byte value)
+        {
+            Card card = DisplayingCards[numberOfDisplayingCard - 1];
+            card.SetCardValue(value);
+            card.SetFaceUp(false); //face down
+            //player.ReceiveDisplayingCard(card);
+            AddCardAnimation(card, ));
         }
 
         public void DrawBurnCard()

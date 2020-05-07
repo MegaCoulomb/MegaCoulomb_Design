@@ -93,27 +93,6 @@ namespace GoFish
             }
         }
 
-        protected override void OnTurnConfirmedSelectedNumber()
-        {
-            if (currentTurnPlayer == localPlayer)
-            {
-                //SetMessage($"Asking {currentTurnTargetPlayer.PlayerName} for {selectedRank}s...");
-            }
-            else
-            {
-                //SetMessage($"{currentTurnPlayer.PlayerName} is asking for {selectedRank}s...");
-            }
-
-            if (NetworkClient.Instance.IsHost)
-            {
-                gameState = GameState.WaitingForOpponent;
-                gameDataManager.SetGameState(gameState);
-
-                netCode.ModifyGameData(gameDataManager.EncryptedData());
-                netCode.NotifyOtherPlayersGameStateChanged();
-            }
-        }
-
         protected override void OnTurnOpponentConfirmed()
         {
             List<byte> cardValuesFromTargetPlayer = gameDataManager.TakeCardValuesWithRankFromPlayer(currentTurnTargetPlayer, selectedRank);

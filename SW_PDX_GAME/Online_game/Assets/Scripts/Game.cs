@@ -61,6 +61,7 @@ namespace GoFish
 
         [SerializeField]
         protected GameState gameState = GameState.Idle;
+        //protected GameState prevGameState = GameState.Idle; //not sure we need this after all, try to use flags for raise and confirming pot
 
         protected void Awake()
         {
@@ -293,9 +294,9 @@ namespace GoFish
             //SetMessage($"Go fish!");
             Debug.Log("Time to dig in to dealing...breathe and lets roll...");
 
-            byte cardValue = gameDataManager.DrawCardValue(); // Burn Card --- always flip so for all common cards we do this...
+            byte cardValue = gameDataManager.DrawCardValue(); // Burn Card --- always burn one card face down, so for all deals cards we do this...
             //how do we burn a card...
-            //cardAnimator.DrawDisplayingCard(); draw the card face dcown in the burnPile
+            cardAnimator.DrawBurnCard(); //draw the card face dcown in the burnPile
             // use previous state to determine how many cards to deal
             if (cardValue == Constants.POOL_IS_EMPTY)
             {
@@ -329,17 +330,7 @@ namespace GoFish
         }
 
         //****************** Helper Methods *********************//
-        public void ResetSelectedCard()
-        {
-            if (selectedCard != null)
-            {
-                selectedCard.OnSelected(false);
-                selectedCard = null;
-                selectedRank = 0;
-            }
-        }
-
-        protected void SetMessage(string message, string stack_update)
+           protected void SetMessage(string message, string stack_update)
         {
             MessageText.text = message;
             Stack.text = stack_update;
