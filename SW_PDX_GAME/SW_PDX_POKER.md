@@ -21,7 +21,7 @@ does not work totally correct right now but that is a minor detail I planned to 
 so things still needed (this is a fluid list of features):
   1) dealing (all three deals can be done from one function i beleieve) - dealer button,..burn card, deal proper amount of cards 
       --> pseudo code is mostly written for this. still need to write pseudo code for dealer button, and modify state machine
-      so we can have a previous state input to make it a Mealy type state machine.
+      so we can have a previous state input to make it a Mealy type state machine.  --> I am currently working on this...
   2) betting needs to be finished & expanded - currently slider and bet button works but check/fold buttons are not hooked up and
      math is not functioning correct yet (visually), and needs an accounting function to ensure pot is good and take into account 
      BB SB positionss...
