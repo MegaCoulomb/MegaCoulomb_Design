@@ -1,0 +1,2 @@
+C:\Users\rwbro\Documents\GitHub\MegaCoulomb_Design\SW_PDX_GAME\Online_game\obj\Debug\Assembly-CSharp.csprojAssemblyReference.cache
+C:\Users\rwbro\Documents\GitHub\MegaCoulomb_Design\SW_PDX_GAME\Online_game\obj\Debug\Assembly-CSharp.csproj.CoreCompileInputs.cache

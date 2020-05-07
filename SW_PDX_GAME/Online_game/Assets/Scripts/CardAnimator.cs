@@ -159,6 +159,12 @@ namespace GoFish
             }
         }
 
+        public void DrawBurnCard()
+        {
+            //draw burn card and move to pile facedown
+            return;
+        }
+
         public void AddCardAnimation(Card card, Vector2 position)
         {
             CardAnimation ca = new CardAnimation(card, position);

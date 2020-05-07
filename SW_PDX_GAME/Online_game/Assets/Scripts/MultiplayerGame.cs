@@ -147,7 +147,7 @@ namespace GoFish
             }
         }
 
-        protected override void OnTurnGoFish()
+        protected override void OnTurnDeal()
         {
             //SetMessage($"Go fish!");
 
@@ -191,7 +191,7 @@ namespace GoFish
         }
 
         //****************** User Interaction *********************//
-        public override void OnBetSelected(double sliderVal)
+        public override void OnBetSelected(float sliderVal)
         {
             if (gameState == GameState.Bet && localPlayer == currentTurnPlayer)
             {

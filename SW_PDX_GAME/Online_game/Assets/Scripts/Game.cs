@@ -16,7 +16,8 @@ namespace GoFish
         public Button bet;
         public double currentBet;
         public Slider betSlider;
-        public float GamePot;
+        public double GamePot = 0;
+        public Text GamePool;
 
 
         protected CardAnimator cardAnimator;
@@ -48,6 +49,9 @@ namespace GoFish
             GameStarted,
             TurnStarted,
             PreFlopAction,
+            PostFlopAction,
+            TurnAction,
+            RiverAction,
             Bet,
             ConfirmBet,
             WaitingForOpponent,
@@ -84,7 +88,6 @@ namespace GoFish
         }
 
         //****************** Game Flow *********************//
-        // 4/5/20 - nned to resolve messages to text windows...
 
         public virtual void GameFlow()
         {
@@ -129,34 +132,58 @@ namespace GoFish
                         GameFlow();
                         break;
                     }
+                case GameState.PostFlopAction:
+                    {
+                        Debug.Log("PostFlopAction");
+                        gameState = GameState.Bet;
+                        GameFlow();
+                        break;
+                    }
+                case GameState.TurnAction:
+                    {
+                        Debug.Log("TurnAction");
+                        gameState = GameState.Bet;
+                        GameFlow();
+                        break;
+                    }
+                case GameState.RiverAction:
+                    {
+                        Debug.Log("RiverAction");
+                        gameState = GameState.Bet;
+                        GameFlow();
+                        break;
+                    }
                 case GameState.Bet:
                     {
                         Debug.Log("Bet");
                         PlaceBet();
                         break;
                     }
-                //case GameState.TurnWaitingForOpponentConfirmation:
-                //    {
-                //        Debug.Log("TurnWaitingForOpponentConfirmation");
-                //        OnTurnWaitingForOpponentConfirmation();
-                //        break;
-                //    }
-                //case GameState.TurnOpponentConfirmed:
-                //    {
-                //        Debug.Log("TurnOpponentConfirmed");
-                //        OnTurnOpponentConfirmed();
-                //        break;
-                //    }
-                case GameState.Deal:
+                case GameState.WaitingForOpponent:
                     {
-                        Debug.Log("TurnGoFish");
-                        OnTurnGoFish();
+                        Debug.Log("WaitingForOpponent");
+                        //break;
+                        // wait for all play to finish
+                        OnTurnWaitingForOpponentConfirmation();
                         break;
                     }
                 case GameState.ConfirmBet:
-
+                    {
+                        // did someone raise....or are we good
+                        Debug.Log("AI Confirms");
+                        OnTurnOpponentConfirmed();
+                        break;
+                    }
+                case GameState.Deal:
+                    {
+                        // uh well...lets deal some cards
+                        Debug.Log("dealing blah");
+                        OnTurnDeal();
+                        break;
+                    }
                 case GameState.GameFinished:
                     {
+                        // lets talkabout what done looks like....
                         Debug.Log("GameFinished");
                         OnGameFinished();
                         break;
@@ -187,7 +214,7 @@ namespace GoFish
 
         public void PlaceBet()
         {
-            //ResetSelectedCard(); // not needed for hold'em
+            //Start of Flow to Place Bet, listens for slider and calls func to convert to $$
 
             if (currentTurnPlayer == localPlayer)
             {
@@ -201,8 +228,11 @@ namespace GoFish
             if (currentTurnPlayer.IsAI)
             {
                 //blah
+                Debug.Log("AI player turn");
+                gameState = GameState.WaitingForOpponent;
                 GameFlow();
             }
+            
         }
 
         protected virtual void OnTurnConfirmedSelectedNumber()
@@ -223,38 +253,50 @@ namespace GoFish
 
         public void OnTurnWaitingForOpponentConfirmation()
         {
+            Debug.Log("waiting for opponent confirmation");
+            
+
             if (currentTurnTargetPlayer.IsAI)
             {
-                gameState = GameState.WaitingForOpponent;
+                Debug.Log("in AI code of opponent confirmation");
+                gameState = GameState.ConfirmBet;
+                GameFlow();
+            }
+            else
+            {
+                gameState = GameState.ConfirmBet;
                 GameFlow();
             }
         }
 
         protected virtual void OnTurnOpponentConfirmed()
         {
-            List<byte> cardValuesFromTargetPlayer = gameDataManager.TakeCardValuesWithRankFromPlayer(currentTurnTargetPlayer, selectedRank);
+            //List<byte> cardValuesFromTargetPlayer = gameDataManager.TakeCardValuesWithRankFromPlayer(currentTurnTargetPlayer, selectedRank);
 
-            if (cardValuesFromTargetPlayer.Count > 0)
-            {
-                gameDataManager.AddCardValuesToPlayer(currentTurnPlayer, cardValuesFromTargetPlayer);
-
-                bool senderIsLocalPlayer = currentTurnTargetPlayer == localPlayer;
-                currentTurnTargetPlayer.SendDisplayingCardToPlayer(currentTurnPlayer, cardAnimator, cardValuesFromTargetPlayer, senderIsLocalPlayer);
-                gameState = GameState.PreFlopAction;
-            }
-            else
-            {
-                gameState = GameState.Deal;
-                GameFlow();
-            }
+            //if (cardValuesFromTargetPlayer.Count > 0)
+            //{
+            //   gameDataManager.AddCardValuesToPlayer(currentTurnPlayer, cardValuesFromTargetPlayer);
+            //
+            //    bool senderIsLocalPlayer = currentTurnTargetPlayer == localPlayer;
+            //    currentTurnTargetPlayer.SendDisplayingCardToPlayer(currentTurnPlayer, cardAnimator, cardValuesFromTargetPlayer, senderIsLocalPlayer);
+            //    gameState = GameState.PreFlopAction;
+            //}
+            //else
+            //{
+            gameState = GameState.Deal;
+            GameFlow();
+            //}
         }
 
-        protected virtual void OnTurnGoFish()
+        protected virtual void OnTurnDeal()
         {
             //SetMessage($"Go fish!");
+            Debug.Log("Time to dig in to dealing...breathe and lets roll...");
 
-            byte cardValue = gameDataManager.DrawCardValue();
-
+            byte cardValue = gameDataManager.DrawCardValue(); // Burn Card --- always flip so for all common cards we do this...
+            //how do we burn a card...
+            //cardAnimator.DrawDisplayingCard(); draw the card face dcown in the burnPile
+            // use previous state to determine how many cards to deal
             if (cardValue == Constants.POOL_IS_EMPTY)
             {
                 Debug.LogError("Pool is empty");
@@ -378,26 +420,33 @@ namespace GoFish
             }
         }
 
-        public virtual void OnBetSelected(double sliderVal)
+        public virtual void OnBetSelected(float sliderVal)
         {
+            // logic for after bet/call has been placed
+
             if (gameState == GameState.Bet && localPlayer == currentTurnPlayer)
             {
                 if (betSlider != null)
                 {
                     currentBet = sliderVal;
-                    gameState = GameState.ConfirmBet;
+                    GamePot += sliderVal;
+                    //Debug.Log(GamePot.ToString());
+                    GamePool.text = GamePot.ToString();
+                    gameState = GameState.WaitingForOpponent;
                     GameFlow();
                 }
             }
             else if (gameState == GameState.WaitingForOpponent && localPlayer == currentTurnTargetPlayer)
             {
-                gameState = GameState.WaitingForOpponent;
+                gameState = GameState.Deal;
                 GameFlow();
             }
         }
 
         public virtual void OnSliderSelected()
         {
+            //Function that converts bet into $$
+
             Debug.Log("in BetSelected");
             Debug.Log("GameState =" + gameState);
 
@@ -407,7 +456,7 @@ namespace GoFish
                 betSlider.maxValue = (float)Math.Round(localPlayer.StackAmt,2);
                 Debug.Log(betSlider.minValue);
                 Debug.Log(betSlider.maxValue);
-                double betVal = Math.Round(betSlider.value,2);
+                float betVal = betSlider.value;
                 betAmt.text ="$" + betVal.ToString();
                 bet.onClick.AddListener(delegate { OnBetSelected(betVal); });
             }
