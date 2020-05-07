@@ -1,5 +1,7 @@
 This Repository is part of an effort to develop an online cash poker game played among friends. 
 
+This project uses Unity 2019.3.6f1 and C# programming laguage. A multiplayer Networking platform "Socket-Weaver" (https://socketweaver.com/) 
+
 The base of this project was taken from a socket-weaver tutorial for playing Go-Fish with multiplayers over a network connection. 
 I have the go-fish repo here: https://github.com/MegaCoulomb/GoFish
 There is a readme.md file there as well with links to the youtube videos.
