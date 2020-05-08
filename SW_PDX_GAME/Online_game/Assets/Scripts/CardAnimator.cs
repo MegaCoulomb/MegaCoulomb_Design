@@ -51,6 +51,7 @@ namespace GoFish
     {
         public GameObject CardPrefab;
 
+
         public List<Card> DisplayingCards;
 
         Queue<CardAnimation> cardAnimations;
@@ -60,6 +61,7 @@ namespace GoFish
         public List<Card> BurnCardValues;
 
         Vector2 startPosition = new Vector2(-5f, 1f);
+        Vector2 BurnPosition = new Vector2(-5.2f, 2.67f);
 
         // invoked when all queued card animations have been played
         public UnityEvent OnAllAnimationsFinished = new UnityEvent();
@@ -163,17 +165,21 @@ namespace GoFish
 
         public void DrawBurnCard(byte value)
         {
-            Card card = DisplayingCards[numberOfDisplayingCard - 1];
+            BurnCardValues = new List<Card>();
+            //int numberOfBurnedCards = BurnCardValues.Count;
+                                              
+            GameObject newGameObject = Instantiate(CardPrefab, BurnPosition, Quaternion.identity);
+            newGameObject.transform.parent = transform;
+            Card card = newGameObject.GetComponent<Card>();
+            //card.SetDisplayingOrder(0);
+            card.transform.position = BurnPosition;    
+                
             card.SetCardValue(value);
-            card.SetFaceUp(false); //face down
+            card.SetFaceUp(false); //we want face down
             //player.ReceiveDisplayingCard(card);
-            AddCardAnimation(card, ));
-        }
+            AddCardAnimation(card,BurnPosition);
 
-        public void DrawBurnCard()
-        {
-            //draw burn card and move to pile facedown
-            return;
+            
         }
 
         public void AddCardAnimation(Card card, Vector2 position)

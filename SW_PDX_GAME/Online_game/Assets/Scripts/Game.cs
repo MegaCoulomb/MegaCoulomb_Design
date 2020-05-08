@@ -25,6 +25,7 @@ namespace GoFish
         [SerializeField]
         protected GameDataManager gameDataManager;
 
+        public List<Transform> BurnCardPile = new List<Transform>();
         public List<Transform> PlayerPositions = new List<Transform>();
         public List<Transform> BookPositions = new List<Transform>();
 
@@ -296,7 +297,8 @@ namespace GoFish
 
             byte cardValue = gameDataManager.DrawCardValue(); // Burn Card --- always burn one card face down, so for all deals cards we do this...
             //how do we burn a card...
-            cardAnimator.DrawBurnCard(); //draw the card face dcown in the burnPile
+            Debug.Log("cardValue = " + cardValue);
+            cardAnimator.DrawBurnCard(cardValue); //draw the card face dcown in the burnPile
             // use previous state to determine how many cards to deal
             if (cardValue == Constants.POOL_IS_EMPTY)
             {
@@ -304,17 +306,17 @@ namespace GoFish
                 return;
             }
 
-            if (Card.GetRank(cardValue) == selectedRank)
-            {
-                cardAnimator.DrawDisplayingCard(currentTurnPlayer, cardValue);
-            }
-            else
-            {
-                cardAnimator.DrawDisplayingCard(currentTurnPlayer);
-                gameState = GameState.TurnStarted;
-            }
+            //if (Card.GetRank(cardValue) == selectedRank)
+            //{
+            //    cardAnimator.DrawDisplayingCard(currentTurnPlayer, cardValue);
+            //}
+            //else
+            //{
+            //    cardAnimator.DrawDisplayingCard(currentTurnPlayer);
+            //    gameState = GameState.TurnStarted;
+            //}
 
-            gameDataManager.AddCardValueToPlayer(currentTurnPlayer, cardValue);
+            //gameDataManager.AddCardValueToPlayer(currentTurnPlayer, cardValue);
         }
 
         public void OnGameFinished()

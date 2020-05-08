@@ -62,9 +62,11 @@ namespace GoFish
             // ...
             // 48-51 are kings's
             Rank = (Ranks)(value / 4 + 1);
+            Debug.Log("Rank Encoding = " + Rank);
 
             // 0, 4, 8, 12, 16, 20, 24, 28, 32, 36, 40, 44, 48 are Spades(0)
             Suit = (Suits)(value % 4);
+            Debug.Log("Suit Encoding = " + Suit);
         }
 
         void UpdateSprite()

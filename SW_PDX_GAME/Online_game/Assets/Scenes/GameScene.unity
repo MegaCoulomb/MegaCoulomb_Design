@@ -1391,6 +1391,10 @@ MonoBehaviour:
   DisplayingCards:
   - {fileID: 0}
   - {fileID: 0}
+  BurnCardValues:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   OnAllAnimationsFinished:
     m_PersistentCalls:
       m_Calls:
@@ -1454,6 +1458,8 @@ MonoBehaviour:
       currentTurnPlayerId: 
       currentGameState: 0
       selectedRank: 0
+  BurnCardPile:
+  - {fileID: 1871278035}
   PlayerPositions:
   - {fileID: 1673180181}
   - {fileID: 1049071166}
@@ -2106,6 +2112,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 176d6b092c6ea499b94a9b7d73b81f6b, type: 3}
+--- !u!4 &1871278035 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6606965526255511713, guid: 176d6b092c6ea499b94a9b7d73b81f6b,
+    type: 3}
+  m_PrefabInstance: {fileID: 1871278034}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &2567849394010841998
 PrefabInstance:
   m_ObjectHideFlags: 0
