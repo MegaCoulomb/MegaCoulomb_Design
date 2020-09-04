@@ -1,2 +1,2 @@
-# PNW_DA_Services
-Master Repository for Application development by MegaCoulomb Inc.
+# MegaCoulomb Design repo
+Master Repository for Application development by MegaCoulomb Design. 
